@@ -4,7 +4,7 @@ This repository contains the code and datasets to reproduce the results and to t
 
 
 ## Downloading data folder
-Before you can reproduce the results of the manuscript, you need to [download and unzip a data folder from Zenodo](https://zenodo.org/record/8182032).
+Before you can reproduce the results of the manuscript, you need to [download and unzip a data folder from Zenodo]([https://zenodo.org/record/8182032](https://doi.org/10.5281/zenodo.8182031)).
 Afterwards, this repository should have the following strcuture:
 
     ├── code
