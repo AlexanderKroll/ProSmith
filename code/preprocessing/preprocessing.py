@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 
 from smiles_embeddings import *
-#from protein_embeddings import *
+from protein_embeddings import *
 
 def get_arguments():
     parser = argparse.ArgumentParser()
