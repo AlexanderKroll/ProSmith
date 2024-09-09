@@ -91,7 +91,7 @@ def get_arguments():
         help="Proportion of training to perform linear learning rate warmup",
     )
     parser.add_argument(
-        "   ",
+        "",
         default='',
         type=str,
         help="Path of pretrained model. If empty model will be trained from scratch.",
