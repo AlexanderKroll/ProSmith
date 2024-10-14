@@ -91,7 +91,7 @@ def get_arguments():
         help="Proportion of training to perform linear learning rate warmup",
     )
     parser.add_argument(
-        "",
+        "--pretrained_model",
         default='',
         type=str,
         help="Path of pretrained model. If empty model will be trained from scratch.",
@@ -164,8 +164,8 @@ def train(args, model, trainloader, optimizer, criterion, device, gpu, epoch):
         optimizer.step()
         
         # logging.info training loss after every n steps
-        if step % 10 == 0:
-            logging.info('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, args.num_train_epochs, step+1, len(trainloader), loss.item()))
+        # if step % 10 == 0:
+        logging.info('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, args.num_train_epochs, step+1, len(trainloader), loss.item()))
         train_loss += loss.item()
         
     return train_loss / len(trainloader)
@@ -198,8 +198,8 @@ def evaluate(args, model, valloader, criterion, device, gpu):
             preds = outputs
 
             if args.binary_task:
-                y_true.extend(labels.cpu().bool())
-                y_pred.extend(preds.cpu())
+                y_true.extend(labels.cpu().bool().numpy())
+                y_pred.extend(preds.cpu().numpy())
             else:
                 y_true.extend(labels.cpu().numpy())
                 y_pred.extend(preds.cpu().numpy())
