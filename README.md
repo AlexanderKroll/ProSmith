@@ -5,7 +5,7 @@ This repository contains the code and datasets to reproduce the results and to t
 
 ## Downloading data folder
 Before you can reproduce the results of the manuscript, you need to [download and unzip a data folder from Zenodo](https://doi.org/10.5281/zenodo.10986299).
-Afterwards, this repository should have the following strcuture:
+Afterwards, this repository should have the following structure:
 
     ├── code
     ├── data   
@@ -26,15 +26,18 @@ First, you need a training, validation, and test set as csv files. Every csv fil
 -SMILES: contains SMILES strings for small molecules
 -output: The value of the target variable for the protein-small molecule pair of this row
 
-For an example of such csv-files, please have a look at the files in following folder of this repositiory: "data/training_data/ESP/train_val".
+For an example of such csv-files, please have a look at the files in following folder of this repository: "data/training_data/ESP/train_val".
 
 ### (b) Calculating input representations for proteins and small molecules:
 Before you can start training ProSmith, ESM-1b embeddings and ChemBERTa2 embeddings need to be calculated for all protein sequences and SMILES strings in your repository, respectively. For example, for the ESP dataset this can be done by executing the following command:
 
-```python
-python /path_to_repository/code/preprocessing/preprocessing.py --train_val_path /path_to_repository/data/training_data/ESP/train_val/ \
-															   --outpath /path_to_repository/data/training_data/ESP/embeddings \
-															   --smiles_emb_no 2000 --prot_emb_no 2000
+```bash
+python /path_to_repository/code/preprocessing/preprocessing.py
+--train_val_path
+/path_to_repository/data/training_data/ESP/train_val/ \
+--outpath
+/path_to_repository/data/training_data/ESP/embeddings \
+--smiles_emb_no 2000 --prot_emb_no 2000
 ```
 -"train_val_path": specifies, where all training and validation files are stored (with all protein sequences and SMILES strings)
 -"outpath": specifies, where the calculated ESM-1b and ChemBERTa2 embeddings will be stored
@@ -44,32 +47,33 @@ python /path_to_repository/code/preprocessing/preprocessing.py --train_val_path 
 ### (c) Training the ProSmith Transformer Network:
 To train the ProSmith Transformer Network (code is an example to train for the ESP task):
 
-```python
-python /path_to_repository/code/training/training.py --train_dir /path_to_repository/data/training_data/ESP/train_val/ESP_train_df.csv \
-							    --val_dir /path_to_repository/data/training_data/ESP/train_val/ESP_train_df.csv \
-							    --save_model_path /path_to_repository/data/training_data/ESP/saved_model \
-							    --embed_path /path_to_repository/data/training_data/ESP/embeddings \
-							    --pretrained_model /path_to_repository/data/training_data/BindingDB/saved_model/pretraining_IC50_6gpus_bs144_1.5e-05_layers6.txt.pkl \
-							    --learning_rate 1e-5  --num_hidden_layers 6 --batch_size 24 --binary_task True \
-							    --log_name ESP --num_train_epochs 100
-```
+```bash
+python /path_to_repository/code/training/training.py \
+    --train_dir /path_to_repository/data/training_data/ESP/train_val/ESP_train_df.csv \
+    --val_dir /path_to_repository/data/training_data/ESP/train_val/ESP_train_df.csv \
+    --save_model_path /path_to_repository/data/training_data/ESP/saved_model \
+    --embed_path /path_to_repository/data/training_data/ESP/embeddings \
+    --pretrained_model /path_to_repository/data/training_data/BindingDB/saved_model/pretraining_IC50_6gpus_bs144_1.5e-05_layers6.txt.pkl \
+    --learning_rate 1e-5  --num_hidden_layers 6 --batch_size 24 --binary_task True \
+    --log_name ESP --num_train_epochs 100
+    ```
 
-This model will train for num_train_epochs=100 epochs and it will store the best model (i.e. with the best performance on the validation set) in "save_model_path". Therefore, after each epoch model performance is evaluated. 
-"binary_task" is set to True, because the ESP prediction task is a binary classification task. The variable has to be set to False for regression tasks.
+    This model will train for num_train_epochs=100 epochs and it will store the best model (i.e. with the best performance on the validation set) in "save_model_path". Therefore, after each epoch model performance is evaluated. 
+    "binary_task" is set to True, because the ESP prediction task is a binary classification task. The variable has to be set to False for regression tasks.
 
 
-### (d) Training the Gradient Boosting Models:
-To train gradient boosting models for the ESP task, execute the following command:
+    ### (d) Training the Gradient Boosting Models:
+    To train gradient boosting models for the ESP task, execute the following command:
 
-```python
-python /path_to_repository/code/training/training_GB.py --train_dir /path_to_repository/data/training_data/ESP/train_val/ESP_train_df.csv \
-							    --val_dir /path_to_repository/data/training_data/ESP/train_val/ESP_val_df.csv \
-							    --test_dir /path_to_repository/data/training_data/ESP/train_val/ESP_test_df.csv \
-							    --pretrained_model /path_to_repository/data/training_data/ESP/saved_model/ESP_1gpus_bs24_1e-05_layers6.txt.pkl \
-							    --embed_path /path_to_repository/data/training_data/ESP/embeddings \
-							    --save_pred_path /path_to_repository/data/training_data/ESP/saved_predictions \
-							    --num_hidden_layers 6 --num_iter 500 --log_name ESP --binary_task True		    
-```
+    ```python
+    python /path_to_repository/code/training/training_GB.py --train_dir /path_to_repository/data/training_data/ESP/train_val/ESP_train_df.csv \
+    --val_dir /path_to_repository/data/training_data/ESP/train_val/ESP_val_df.csv \
+    --test_dir /path_to_repository/data/training_data/ESP/train_val/ESP_test_df.csv \
+    --pretrained_model /path_to_repository/data/training_data/ESP/saved_model/ESP_1gpus_bs24_1e-05_layers6.txt.pkl \
+    --embed_path /path_to_repository/data/training_data/ESP/embeddings \
+    --save_pred_path /path_to_repository/data/training_data/ESP/saved_predictions \
+    --num_hidden_layers 6 --num_iter 500 --log_name ESP --binary_task True		    
+    ```
 
 The final predictions of the ProSmith model will be saved in "save_pred_path". They might differ from the original order in the csv file, but there is an additional file, containing the original indices. You can map the predictions to the csv file using the following python code:
 
